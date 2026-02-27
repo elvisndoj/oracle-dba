@@ -1,0 +1,8 @@
+
+COL "UNDO%RATE" form 99999999
+
+SELECT state,
+       UNDOBLOCKSDONE,
+       UNDOBLOCKSTOTAL,
+       UNDOBLOCKSDONE / UNDOBLOCKSTOTAL * 100 as "UNDO%RATE"
+  FROM gv$fast_start_transactions;
