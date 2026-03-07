@@ -92,12 +92,4 @@ WITH
          AND a.tablespace_name = fragments.tablespace_name
          AND a.tablespace_name = AUTOEXTEND.tablespace_name
          AND a.tablespace_name = tbs_auto.tablespace_name(+)
-         --Check 'total_used_space' against 'max_size_of_tablespace' (total tbs size (32gb for small tbs))
-         AND   ((  (files.total_tbs_bytes - fragments.total_tbs_free_bytes)
-                 / autoextend.total_growth_tbs))
-             * 100 >
-             85
-         --Check against %Free
-         AND (fragments.total_tbs_free_bytes / files.total_tbs_bytes) * 100 <
-             15
-ORDER BY total_free_pct;
+ORDER BY totalbytesfromextendupto desc;
