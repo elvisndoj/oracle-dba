@@ -52,11 +52,6 @@ else
 	else $instancestatus
 	fi
 fi
-#echo "-----------------------------------------------------------"
-#echo -e "--- DB Instance: $ORACLE_SID"
-#echo -e "--- DB Status: $instancestatus"
-#echo -e "--- DB Home: $ORACLE_HOME"
-#echo "-----------------------------------------------------------"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo -e " DB Instance: $ORACLE_SID"
 echo -e " DB Status: $instancestatus"
