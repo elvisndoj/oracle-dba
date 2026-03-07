@@ -1,11 +1,10 @@
 #!/bin/bash
 
 ####################
-#		   #	
-# author:Elvis Ndoj#
-# 2026-03-07	   #
-# v.1.0		   #	
-# Oracle DB	   #	
+#	
+# author:Elvis Ndoj
+# 2026-03-07
+# v.1.0		
 ####################
 #
 # This script is created to provide a quick overview of Oracle Instances (single instances) installed in the system.
