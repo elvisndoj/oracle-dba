@@ -6,7 +6,7 @@
 # v.1.0
 ##########################
 
-sql_scripts_path="$HOME/my-repo/sql"
+sql_scripts_path="../sql"
 
 
 tablespace_usage(){
