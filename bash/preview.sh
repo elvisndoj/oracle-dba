@@ -13,6 +13,10 @@
 SID=( $(cat /etc/oratab | grep -E "\b:" | grep -v "^#" | cut -d: -f1) )
 OH=( $(cat /etc/oratab | grep -E "\b:" | grep -v "^#" | cut -d: -f2) )
 
+
+sql_scripts_path="/home/oracle/oracle-dba/sql"
+shell_scripts_path="/home/oracle/oracle-dba/bash"
+
 for i in ${SID[@]}
 do
 
