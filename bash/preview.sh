@@ -3,8 +3,9 @@
 ####################
 #	
 # author:Elvis Ndoj
-# 2026-03-07
-# v.1.0		
+#
+# v.1.1 (2026-03-09)
+# v.1.0 (2026-03-07)		
 ####################
 #
 # This script is created to provide a quick overview of Oracle Instances (single instances) installed in the system.
@@ -56,13 +57,35 @@ else
 	else $instancestatus
 	fi
 fi
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo -e " DB Instance: $ORACLE_SID"
-echo -e " DB Status: $instancestatus"
-echo -e " DB Home: $ORACLE_HOME"
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo -e " DB Instance:\t $ORACLE_SID"
+echo -e " DB Status:\t $instancestatus"
+echo -e " DB Home:\t $ORACLE_HOME"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 alias $i="set_ora_env $i";
 unset ORACLE_SID;
 unset ORACLE_HOME;
 done;
+
+#v1.1.1
+
+listeners=( $(ps -ef | grep -i "tnslsnr" | grep -v "grep" | awk -F " " '{ print $9":"$8}') )
+
+if [ ! $(echo ${#listeners[@]}) -eq 0 ];
+then
+ for listener in ${listeners[@]}
+ do
+ listener_alias=$(echo $listener | cut -d: -f1)
+ listener_status="up"
+ listener_det=$(echo $listener | cut -d: -f2)
+ echo -e " listener ($listener_alias):\t\t $listener_status\t $listener_det"
+ done;
+ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+else
+ listener_alias=""
+ listener_status="down"
+ listener_det=""
+ echo -e " listener ($listener_alias):\t $listener_status\t $listener_det"
+ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+fi;
