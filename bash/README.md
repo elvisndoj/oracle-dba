@@ -30,37 +30,39 @@ A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as
 	```
 	Make sure a valid Oracle SID is selected before running the scripts.
 
-	## Example Output
+## Example Output
 
-	##Preview screen:
-	```
-	[oracle@xxxxx ~]$ p
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	 DB Instance:    oradb
-	 DB Status:      up
-	 DB Home:        /oracle19cSofts/app/oracle/product/19_28
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	 DB Instance:    orclai
-	 DB Status:      up
-	 DB Home:        /oracle19cSofts/app/oracle/product/26
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	 listener (LISTENER):            up      /oracle19cSofts/app/oracle/product/26/bin/tnslsnr
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
-	[oracle@xxxxx ~]$ orclai
-	
-	##Tablespace usage
-	
-	[oracle@xxxxx ~]$ tbs
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Tablespace Usage of Instance: orclai
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
-	INSTANCE Tablespace Name           AutoExtend Files TotalSpace UsedSpace FreeSpace %Used %Free Used%FromMax ExtendUpto(MB)
-	-------- ------------------------- ---------- ----- ---------- --------- --------- ----- ----- ------------ --------------
-	orclai   SYSTEM                    YES            1       1110      1108         2   100     0            0       33554432
-	orclai   USERS                     YES            1          7         6         1    87    13            0       33554432
-	orclai   UNDOTBS1                  YES            1         40        33         7    83    17            0       33554432
-	orclai   SYSAUX                    YES            1        700       663        37    95     5            0       33554432
-	```
+##Preview screen:
+```
+[oracle@xxxxx ~]$ p
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ DB Instance:    oradb
+ DB Status:      up
+ DB Home:        /oracle19cSofts/app/oracle/product/19_28
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ DB Instance:    orclai
+ DB Status:      up
+ DB Home:        /oracle19cSofts/app/oracle/product/26
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ listener (LISTENER):            up      /oracle19cSofts/app/oracle/product/26/bin/tnslsnr
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[oracle@xxxxx ~]$ orclai
+```
+
+##Tablespace usage
+
+```
+[oracle@xxxxx ~]$ tbs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tablespace Usage of Instance: orclai
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+INSTANCE Tablespace Name           AutoExtend Files TotalSpace UsedSpace FreeSpace %Used %Free Used%FromMax ExtendUpto(MB)
+-------- ------------------------- ---------- ----- ---------- --------- --------- ----- ----- ------------ --------------
+orclai   SYSTEM                    YES            1       1110      1108         2   100     0            0       33554432
+orclai   USERS                     YES            1          7         6         1    87    13            0       33554432
+orclai   UNDOTBS1                  YES            1         40        33         7    83    17            0       33554432
+orclai   SYSAUX                    YES            1        700       663        37    95     5            0       33554432
+```
