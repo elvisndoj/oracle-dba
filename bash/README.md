@@ -48,7 +48,7 @@ A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as
 	 listener (LISTENER):            up      /oracle19cSofts/app/oracle/product/26/bin/tnslsnr
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
-	[oracle@xxxxx ~]$
+	[oracle@xxxxx ~]$ orclai
 	
 	##Tablespace usage
 	
