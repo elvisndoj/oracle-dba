@@ -41,7 +41,7 @@ Make sure a valid Oracle SID is selected before running the scripts.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  DB Instance:    orclai
- DB Status:      down
+ DB Status:      up
  DB Home:        /oracle19cSofts/app/oracle/product/26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  listener (LISTENER):            up      /oracle19cSofts/app/oracle/product/26/bin/tnslsnr
