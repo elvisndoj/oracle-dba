@@ -67,6 +67,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 alias $i="set_ora_env $i";
 unset ORACLE_SID;
 unset ORACLE_HOME;
+unset PATH && export PATH=$ORIG_PATH
 done;
 
 #v1.1.1
