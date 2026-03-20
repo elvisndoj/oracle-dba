@@ -14,7 +14,6 @@
 SID=( $(cat /etc/oratab | grep -E "\b:" | grep -v "^#" | cut -d: -f1) )
 OH=( $(cat /etc/oratab | grep -E "\b:" | grep -v "^#" | cut -d: -f2) )
 
-ORIG_PATH=$PATH
 
 sql_scripts_path="/home/oracle/oracle-dba/sql"
 shell_scripts_path="/home/oracle/oracle-dba/bash"
@@ -27,7 +26,7 @@ unset ORACLE_SID;
 unset ORACLE_HOME;
 export ORACLE_SID=$1
 export ORACLE_HOME=$(cat /etc/oratab | grep "$ORACLE_SID" | grep -E "\b:" | grep -v "^#" | cut -d: -f2)
-export PATH="$ORACLE_HOME/bin:$ORIG_PATH"
+export PATH="$ORACLE_HOME/bin:$PATH"
 export LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64:$ORACLE_HOME/lib
 }
 
@@ -67,7 +66,6 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 alias $i="set_ora_env $i";
 unset ORACLE_SID;
 unset ORACLE_HOME;
-unset PATH && export PATH=$ORIG_PATH
 done;
 
 #v1.1.1
