@@ -3,8 +3,8 @@
 ####################
 #	
 # author:Elvis Ndoj
-#
-# v.1.1 (2026-03-09)
+# v.1.2 (2026-03-20) ---> Added new functions to display/load details of db after setting the environment
+# v.1.1 (2026-03-09) ---> Added details for listeners.
 # v.1.0 (2026-03-07)		
 ####################
 #
@@ -35,11 +35,11 @@ set_ora_env $i
  
 status(){
 sqlplus -s "/ as sysdba" <<EOF
-WHENEVER SQLERROR EXIT SQL.SQLCODE
-SET echo OFF;
-SET HEADING OFF;
-select status from v\$instance;
-exit
+	WHENEVER SQLERROR EXIT SQL.SQLCODE
+	SET echo OFF;
+	SET HEADING OFF;
+	select status from v\$instance;
+	exit
 EOF
 }
 
@@ -52,25 +52,63 @@ else
 	if [[ "$instancestatus" == "OPEN" ]];
 	then instancestatus="up"
 	elif [[ "$instancestatus" == "STARTED" ]]
-	then instancestatus="started (nomount)"
+	then instancestatus="started"
 	elif [[ "$instancestatus" == "MOUNTED" ]]
         then instancestatus="mounted"
 	else $instancestatus
 	fi
 fi
 
+# v.1.2
+db_details(){
+sqlplus -s "/ as sysdba" <<EOF
+	WHENEVER SQLERROR EXIT SQL.SQLCODE
+	SET HEADING OFF
+	SET FEEDBACK OFF
+	SET PAGESIZE 0
+	SET COLSEP '|'
+	set linesize 300
+	select db_unique_name,database_role,log_mode,open_mode,flashback_on,switchover_status,dataguard_broker,force_logging
+	from v\$database;
+	exit
+EOF
+}
+
+dbdetails=$(db_details)
+show_dbdetails()
+{
+
+	dbdetails=$(db_details)
+	IFS='|' read -r db_unique_name database_role log_mode open_mode flashback_on switchover_status dataguard_broker force_logging <<< $dbdetails
+	echo ""
+	echo "-------------------------------------------"
+	echo -e "db_unique_name\t\t= $db_unique_name"
+	echo -e "database_role\t\t= $database_role"
+	echo -e "log_mode\t\t= $log_mode"
+	echo -e "open_mode\t\t= $open_mode"
+	echo -e "flashback_on\t\t= $flashback_on"
+	echo -e "switchover_status\t= $switchover_status"
+	echo -e "dataguard_broker\t= $dataguard_broker"
+	echo -e "force_logging\t\t= $force_logging"
+	echo "-------------------------------------------"
+}
+
+if [[ "$dbdetails" != *ERROR* || "$dbdetails" != *ORA-* ]];
+then
+alias $i="set_ora_env $i && show_dbdetails";
+fi;
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo -e " DB Instance:\t $ORACLE_SID"
 echo -e " DB Status:\t $instancestatus"
 echo -e " DB Home:\t $ORACLE_HOME"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-alias $i="set_ora_env $i";
+
 unset ORACLE_SID;
 unset ORACLE_HOME;
 unset PATH && export PATH=$ORIG_PATH
 done;
 
-#v1.1.1
+# v1.1
 
 listeners=( $(ps -ef | grep -i "tnslsnr" | grep -v "grep" | awk -F " " '{ print $9":"$8}') )
 
