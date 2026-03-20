@@ -49,6 +49,17 @@ A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [oracle@xxxxx ~]$ orclai
+-------------------------------------------
+db_unique_name          = orclai
+database_role           = PRIMARY
+log_mode                = NOARCHIVELOG
+open_mode               = READ WRITE
+flashback_on            = NO
+switchover_status       = NOT ALLOWED
+dataguard_broker        = DISABLED
+force_logging           = NO
+-------------------------------------------
+
 ```
 
 ##Tablespace usage
