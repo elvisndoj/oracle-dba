@@ -35,20 +35,19 @@ A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as
 ##Preview screen:
 ```
 [oracle@xxxxx ~]$ p
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- DB Instance:    oradb
- DB Status:      up
- DB Home:        /oracle19cSofts/app/oracle/product/19_28
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- DB Instance:    orclai
- DB Status:      up
- DB Home:        /oracle19cSofts/app/oracle/product/26
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- listener (LISTENER):            up      /oracle19cSofts/app/oracle/product/26/bin/tnslsnr
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+COMPONENT                 SID                  STATUS               ORACLE_HOME
+------------------------- ---------------      ------------         ------------------------------
+OraDB23Home1 (rdbms)      orclai               UP                   /oracle19cSofts/app/oracle/product/26
+OraDB19Home2 (rdbms)      oradb                MOUNTED              /oracle19cSofts/app/oracle/product/19_28
+OraDB19Home1 (rdbms)      -                    -                    /oracle19cSofts/DB
+oms13c1 (rdbms)           -                    -                    /oracle/em_home
+agent13c1 (rdbms)         -                    -                    /oracle/agent/agent_13.5.0.0.0
+listener (LISTENER)       -                    UP                   /oracle19cSofts/app/oracle/product/26
 [oracle@xxxxx ~]$ orclai
+✔ SID: orclai
+✔ HOME: /oracle19cSofts/app/oracle/product/26
+STATUS: UP
 -------------------------------------------
 db_unique_name          = orclai
 database_role           = PRIMARY
@@ -56,9 +55,14 @@ log_mode                = NOARCHIVELOG
 open_mode               = READ WRITE
 flashback_on            = NO
 switchover_status       = NOT ALLOWED
-dataguard_broker        = DISABLED
+dataguard_broker        = FALSE
 force_logging           = NO
 -------------------------------------------
+[oracle@xxxxx ~]$ oradb
+✔ SID: oradb
+✔ HOME: /oracle19cSofts/app/oracle/product/19_28
+STATUS: MOUNTED
+[oracle@xxxxx ~]$
 
 ```
 
