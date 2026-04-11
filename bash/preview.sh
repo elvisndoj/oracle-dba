@@ -1,131 +1,271 @@
 #!/bin/bash
 
-####################
-#	
-# author:Elvis Ndoj
-# v.1.2 (2026-03-20) ---> Added new functions to display/load details of db after setting the environment
-# v.1.1 (2026-03-09) ---> Added details for listeners.
-# v.1.0 (2026-03-07)		
-####################
-#
-# This script is created to provide a quick overview of Oracle Instances (single instances) installed in the system.
-#
-
-SID=( $(cat /etc/oratab | grep -E "\b:" | grep -v "^#" | cut -d: -f1) )
-OH=( $(cat /etc/oratab | grep -E "\b:" | grep -v "^#" | cut -d: -f2) )
-
+ORATAB=/etc/oratab
 ORIG_PATH=$PATH
 
-sql_scripts_path="/home/oracle/oracle-dba/sql"
-shell_scripts_path="/home/oracle/oracle-dba/bash"
+# =========================================================
+# INVENTORY (FROM ORACLE INVENTORY XML)
+# =========================================================
+get_oracle_homes() {
+  local inv_loc=$(awk -F= '/inventory_loc/ {print $2}' /etc/oraInst.loc)
+  local xml="$inv_loc/ContentsXML/inventory.xml"
 
-for i in ${SID[@]}
-do
-
-set_ora_env(){
-unset ORACLE_SID;
-unset ORACLE_HOME;
-export ORACLE_SID=$1
-export ORACLE_HOME=$(cat /etc/oratab | grep "$ORACLE_SID" | grep -E "\b:" | grep -v "^#" | cut -d: -f2)
-export PATH="$ORACLE_HOME/bin:$ORIG_PATH"
-export LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64:$ORACLE_HOME/lib
+  awk -F'"' '
+    /HOME NAME/ {
+      for (i=1; i<=NF; i++) {
+        if ($i ~ /NAME=/) name=$(i+1)
+        if ($i ~ /LOC=/)  loc=$(i+1)
+      }
+      if (name && loc)
+        print name "|" loc
+    }
+  ' "$xml" | sort -r
 }
 
-set_ora_env $i
- 
-status(){
-sqlplus -s "/ as sysdba" <<EOF
-	WHENEVER SQLERROR EXIT SQL.SQLCODE
-	SET echo OFF;
-	SET HEADING OFF;
-	select status from v\$instance;
-	exit
+# =========================================================
+# STATUS CHECK (FIXED LOGIC)
+# =========================================================
+get_db_status() {
+  local sid=$1
+  local home=$2
+
+  # ---------------- ASM / GRID ----------------
+  if [[ "$sid" == +ASM* ]]; then
+    if ps -ef | grep -q "[a]sm_pmon_"; then
+      echo "UP"
+    else
+      echo "DOWN"
+    fi
+    return
+  fi
+
+  # ---------------- HARD RULE ----------------
+  # no pmon => DOWN
+  if ! ps -ef | grep -q "[p]mon_${sid}"; then
+    echo "DOWN"
+    return
+  fi
+
+  # ---------------- SQL CHECK ----------------
+  export ORACLE_SID="$sid"
+  export ORACLE_HOME="$home"
+  export PATH=$ORACLE_HOME/bin:$ORIG_PATH
+
+  inst=$(sqlplus -s / as sysdba <<EOF
+set heading off feedback off pages 0 verify off echo off termout off
+select status from v\$instance;
+exit
+EOF
+)
+
+  inst=$(echo "$inst" | tr -d '[:space:]')
+
+  case "$inst" in
+    OPEN)    echo "UP" ;;
+    MOUNTED) echo "MOUNTED" ;;
+    STARTED) echo "STARTED (NOMOUNT)" ;;
+    *)       echo "UNKNOWN" ;;
+  esac
+}
+
+# =========================================================
+# DB DETAILS (ONLY IF OPEN)
+# =========================================================
+show_db_details() {
+
+inst=$(sqlplus -s / as sysdba <<EOF
+set heading off feedback off pages 0 verify off echo off termout off
+select status from v\$instance;
+exit
+EOF
+)
+
+inst=$(echo "$inst" | tr -d '[:space:]')
+
+[[ "$inst" != "OPEN" ]] && return
+
+sqlplus -s / as sysdba <<EOF
+set pages 0 feedback off heading off verify off echo off lines 200
+
+select '-------------------------------------------' from dual;
+
+select 'db_unique_name          = '||db_unique_name from v\$database;
+select 'database_role           = '||database_role from v\$database;
+select 'log_mode                = '||log_mode from v\$database;
+select 'open_mode               = '||open_mode from v\$database;
+select 'flashback_on            = '||flashback_on from v\$database;
+select 'switchover_status       = '||switchover_status from v\$database;
+select 'dataguard_broker        = '||value from v\$parameter where name='dg_broker_start';
+select 'force_logging           = '||force_logging from v\$database;
+
+select '-------------------------------------------' from dual;
+
+exit
 EOF
 }
 
-instancestatus="$(status | tr -d '\n')"
-rc=$?
+# =========================================================
+# ASM DETAILS
+# =========================================================
+show_asm_details() {
 
-if [ $rc -ne 0 ] || [[ "$instancestatus" == *ERROR* || -z "$instancestatus" ]]; then
-instancestatus="down"
-else
-	if [[ "$instancestatus" == "OPEN" ]];
-	then instancestatus="up"
-	elif [[ "$instancestatus" == "STARTED" ]]
-	then instancestatus="started"
-	elif [[ "$instancestatus" == "MOUNTED" ]]
-        then instancestatus="mounted"
-	else $instancestatus
-	fi
+sqlplus -s / as sysasm <<EOF
+set lines 200 pages 100 feedback off
+
+select name,
+       state,
+       total_mb,
+       free_mb,
+       round((free_mb/total_mb)*100,2) pct_free
+from v\$asm_diskgroup;
+
+exit
+EOF
+}
+
+# =========================================================
+# SET ENVIRONMENT / COMMAND ENTRY
+# =========================================================
+setora() {
+
+input="$1"
+
+# ---------------- SID MODE ----------------
+entry=$(grep -v '^#' $ORATAB | grep "^${input}:")
+
+if [[ -n "$entry" ]]; then
+  export ORACLE_SID=$(echo $entry | cut -d: -f1)
+  export ORACLE_HOME=$(echo $entry | cut -d: -f2)
+  export PATH=$ORACLE_HOME/bin:$ORIG_PATH
+
+  echo "✔ SID: $ORACLE_SID"
+  echo "✔ HOME: $ORACLE_HOME"
+
+  status=$(get_db_status "$ORACLE_SID" "$ORACLE_HOME")
+  echo "STATUS: $status"
+
+  if [[ "$ORACLE_SID" == +ASM* ]]; then
+    show_asm_details
+  else
+    show_db_details
+  fi
+
+  return
 fi
 
-# v.1.2
-db_details(){
-sqlplus -s "/ as sysdba" <<EOF
-	WHENEVER SQLERROR EXIT SQL.SQLCODE
-	SET HEADING OFF
-	SET FEEDBACK OFF
-	SET PAGESIZE 0
-	SET COLSEP '|'
-	set linesize 300
-	select db_unique_name,database_role,log_mode,open_mode,flashback_on,switchover_status,dataguard_broker,force_logging
-	from v\$database;
-	exit
-EOF
+# ---------------- HOME MODE ----------------
+while IFS="|" read -r name home
+do
+  if [[ "$input" == "$name" ]]; then
+
+    unset ORACLE_SID
+    unset TWO_TASK
+
+    export ORACLE_HOME="$home"
+    export PATH=$ORACLE_HOME/bin:$ORIG_PATH
+
+    echo "✔ HOME: $ORACLE_HOME"
+    echo "✔ SID unset"
+
+    return
+  fi
+done < <(get_oracle_homes)
+
+echo "❌ Unknown: $input"
 }
 
-dbdetails=$(db_details)
-show_dbdetails()
-{
+# =========================================================
+# FUNCTION ALIASES
+# =========================================================
+create_functions() {
 
-	dbdetails=$(db_details)
-	IFS='|' read -r db_unique_name database_role log_mode open_mode flashback_on switchover_status dataguard_broker force_logging <<< $dbdetails
-	echo ""
-	echo "-------------------------------------------"
-	echo -e "db_unique_name\t\t= $db_unique_name"
-	echo -e "database_role\t\t= $database_role"
-	echo -e "log_mode\t\t= $log_mode"
-	echo -e "open_mode\t\t= $open_mode"
-	echo -e "flashback_on\t\t= $flashback_on"
-	echo -e "switchover_status\t= $switchover_status"
-	echo -e "dataguard_broker\t= $dataguard_broker"
-	echo -e "force_logging\t\t= $force_logging"
-	echo "-------------------------------------------"
+while IFS="|" read -r name home
+do
+  [[ -z "$name" ]] && continue
+  eval "$name() { setora \"$name\"; }"
+done < <(get_oracle_homes)
+
+while IFS=: read -r sid home rest
+do
+  [[ -z "$sid" || "$sid" == \#* ]] && continue
+  eval "$sid() { setora $sid; }"
+done < $ORATAB
 }
 
-if [[ "$dbdetails" != *ERROR* || "$dbdetails" != *ORA-* ]];
+# =========================================================
+# OVERVIEW TABLE
+# =========================================================
+oracle_overview() {
+
+printf "\n"
+printf "%-25s %-20s %-20s %s\n" "COMPONENT" "SID" "STATUS" "ORACLE_HOME"
+printf "%-25s %-20s %-20s %s\n" "-------------------------" "---------------" "------------" "------------------------------"
+
+while IFS="|" read -r comp home
+do
+  [[ -z "$comp" || -z "$home" ]] && continue
+
+  type="rdbms"
+  [[ "$home" == *grid* ]] && type="grid"
+
+  if [[ "$type" == "grid" ]]; then
+    status=$(get_db_status "+ASM" "$home")
+    printf "%-25s %-20s %-20s %s\n" "$comp (grid)" "+ASM" "$status" "$home"
+    continue
+  fi
+
+  sids=$(awk -F: -v h="$home" '$2==h {print $1}' $ORATAB)
+
+  if [[ -z "$sids" ]]; then
+    printf "%-25s %-20s %-20s %s\n" "$comp (rdbms)" "-" "-" "$home"
+  else
+    for sid in $sids
+    do
+      status=$(get_db_status "$sid" "$home")
+      printf "%-25s %-20s %-20s %s\n" "$comp (rdbms)" "$sid" "$status" "$home"
+    done
+  fi
+
+done < <(get_oracle_homes)
+
+# ---------------- LISTENER ----------------
+if [[ -z $(ps -ef | grep '[t]nslsnr') ]]
 then
-alias $i="set_ora_env $i && show_dbdetails";
-fi;
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo -e " DB Instance:\t $ORACLE_SID"
-echo -e " DB Status:\t $instancestatus"
-echo -e " DB Home:\t $ORACLE_HOME"
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
-unset ORACLE_SID;
-unset ORACLE_HOME;
-unset PATH && export PATH=$ORIG_PATH
-done;
-
-# v1.1
-
-listeners=( $(ps -ef | grep -i "tnslsnr" | grep -v "grep" | awk -F " " '{ print $9":"$8}') )
-
-if [ ! $(echo ${#listeners[@]}) -eq 0 ];
-then
- for listener in ${listeners[@]}
- do
- listener_alias=$(echo $listener | cut -d: -f1)
- listener_status="up"
- listener_det=$(echo $listener | cut -d: -f2)
- echo -e " listener ($listener_alias):\t\t $listener_status\t $listener_det"
- done;
- echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  printf "%-25s %-20s %-20s %s\n" "listener (LISTENER)" "-" "DOWN" "-"
 else
- listener_alias=""
- listener_status="down"
- listener_det=""
- echo -e " listener ($listener_alias):\t $listener_status\t $listener_det"
- echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-fi;
+ps -ef | grep '[t]nslsnr' | while read -r line
+do
+  #home=$(echo "$line" | awk '{print $8}' | sed 's#/bin/tnslsnr##')
+  home=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if($i ~ /tnslsnr/) print $i}')
+  home=${home%/bin/tnslsnr}
+  printf "%-25s %-20s %-20s %s\n" "listener (LISTENER)" "-" "UP" "$home"
+done
+fi
+
+# ---------------- OHAS ----------------
+
+if pgrep -f ohasd.bin >/dev/null; then
+
+  home=$(ps -ef | awk '
+    /ohasd.bin/ && !/awk/ {
+      for(i=1;i<=NF;i++) {
+        if($i ~ /ohasd.bin/) {
+          print $i
+          exit
+        }
+      }
+    }')
+
+  home=${home%/bin/ohasd.bin}
+
+  printf "%-25s %-20s %-20s %s\n" "ohasd.bin" "-" "UP" "$home"
+  echo ""
+fi
+}
+# =========================================================
+# AUTO LOAD WHEN SOURCED
+# =========================================================
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+  create_functions
+  oracle_overview
+fi
