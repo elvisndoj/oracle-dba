@@ -1,8 +1,9 @@
+# NAGIOS CORE STEP-BY-STEP GUIDE
 
 This documentation is a step-by-step guid how to install and configure Nagios Core Version 4.5.13 for Oracle Database Monitoring.
 The Nagios Core is hosted in: Red Hat Enterprise Linux release 8.10 (Ootpa)  4.18.0-553.104.1.el8_10.x86_64 as a test environment.
 
-Part 1. Installation of Nagios Core and Nagios Plugins
+# Part 1. Installation of Nagios Core and Nagios Plugins
 
 Installation is performed following the guide as per documentation:
 
@@ -10,7 +11,7 @@ Installation is performed following the guide as per documentation:
 https://library.nagios.com/docs/nagios-core/getting-started/Nagios-Core-Installing-Nagios-Core-From-Source#rhel-centos-oracle-linux
 ```
 
-Part 2. Configuration of monitoring for Oracle DB using non-default plugin "check_oracle_health"
+# Part 2. Configuration of monitoring for Oracle DB using non-default plugin "check_oracle_health"
 
 I used the pluging from: https://omd.consol.de/docs/plugins/check_oracle_health/
 
@@ -54,40 +55,44 @@ export CV_ASSUME_DISTID=OL7.9
           Switch to nagios user: ```cpan```
           Then inside CPAN type: ```install DBD::Oracle```
 
-# if it fails with below error:
+! If it fails with below error:
 
 ```
--L/oracleclient/oracle_base/oracle_client_home/lib -lclntsh -ldl -lm -lpthread -lnsl -lirc -limf -lirc -lrt -laio -lresolv -lsvml -lperl \ /usr/bin/ld: cannot find -lnsl /usr/bin/ld: cannot find -laio collect2: error: ld returned 1 exit status make: *** [Makefile:526: blib/arch/auto/DBD/Oracle/Oracle.so] Error 1 ZARQUON/DBD-Oracle-1.95.tar.gz /usr/bin/make -- NOT OK
+-L/oracleclient/oracle_base/oracle_client_home/lib -lclntsh -ldl -lm -lpthread -lnsl -lirc -limf -lirc -lrt -laio -lresolv -lsvml -lperl
+\ /usr/bin/ld: cannot find -lnsl /usr/bin/ld: cannot find -laio collect2: error: ld returned 1 exit status make: *** [Makefile:526: blib/arch/auto/DBD/Oracle/Oracle.so] Error 1 ZARQUON/DBD-Oracle-1.95.tar.gz /usr/bin/make -- NOT OK
 ```
 It means CPAN is injecting Oracle sysliblist defaults, which include: -lnsl -lirc -limf -laio -lsvml
 this line in your log proves it:
+
 ``` Sysliblist: -ldl -lm -lpthread -lnsl -lirc -limf -lirc -lrt -laio -lresolv -lsvml ```
 
 This is coming from Oracle client detection, not CPAN.
 To fix the issue, follow the steps:
-    ``` cpan > look DBD::Oracle ``` ==> will provide the build directory (i.e: /home/nagios/.cpan/build/DBD-Oracle-1.95-4)
+    ``` cpan > look DBD::Oracle ```  will provide the build directory (i.e: /home/nagios/.cpan/build/DBD-Oracle-1.95-4)
       3.1.1  In bash:
 	  	```
               unset LIBS
               unset LDLOADLIBS
               unset EXTRALIBS
 		```
-      3.1.2 Go to building directory: ``` cd /home/nagios/.cpan/build/DBD-Oracle-1.95-4 ```
+      3.1.2 Go to building directory:
+	  ``` cd /home/nagios/.cpan/build/DBD-Oracle-1.95-4 ```
             --> regenerate Makefile with clean LIBS by running the commands in following sequence:
 			```
-            			make clean
-            			perl Makefile.PL LIBS="-L$ORACLE_HOME/lib -lclntsh -ldl -lm -lpthread -lresolv" 
-            			make
-            			make install
+			make clean
+			perl Makefile.PL LIBS="-L$ORACLE_HOME/lib -lclntsh -ldl -lm -lpthread -lresolv" 
+			make
+			make install
 			```
              --> Verifications:
-            	 Run in bash: ``` perl -MDBD::Oracle -e 'print "DBD::Oracle OK\n"'	```	   ## Means DBD::Oracle prerequisite is fulfilled 
-            				: ``` perl -MDBI -e 'print "DBI OK\n"'  ```                    ## Means DBI prerequisite is fulfilled
+            	 Run in bash:
+				 ``` perl -MDBD::Oracle -e 'print "DBD::Oracle OK\n"'	```	 DBD::Oracle prerequisite is fulfilled 
+            	 ``` perl -MDBI -e 'print "DBI OK\n"'  ```   DBI prerequisite is fulfilled
 
 4.  Build & compile: check_oracle_health-3.3.3.2 downloaded from https://omd.consol.de/docs/plugins/check_oracle_health/
 	4.1	``` su - nagios ```
 	4.2	``` cd <?>/check_oracle_health-3.3.3.2 ```
-	4.3	``` autoreconf -fi ```    					# this will generate "configure" file
+	4.3	``` autoreconf -fi ```  this will generate "configure" file
     		
 	For some reason, I run in an small issue with, but if you dont face any issue, skipp this part and go to next instruction:
 	Error:
@@ -111,7 +116,7 @@ To fix the issue, follow the steps:
 
 6. Run: ``` sudo systemctl edit nagios ``` and paste:
 
-	#This is based on your variables defined previously.
+	This is based on your variables defined previously.
 	```
 	[Service]
 	Environment="ORACLE_HOME=/oracleclient/oracle_base/oracle_client_home"
@@ -124,12 +129,12 @@ To fix the issue, follow the steps:
 		sudo systemctl daemon-reload
 		sudo systemctl restart nagios
 	```
- # NOW THAT YOU HAVE FINISHED WITH NAGIOS SERVER CONFIGURATION AND PLUGIN COMPILATION
- # ITS TIME TO ADD THE TARGET HOSTS ( ORACLE DB SERVERS)
+ NOW THAT YOU HAVE FINISHED WITH NAGIOS SERVER CONFIGURATION AND PLUGIN COMPILATION
+ ITS TIME TO ADD THE TARGET HOSTS ( ORACLE DB SERVERS)
  
-##############################################################################################################################
-################################################ Oracle DB Monitoring ########################################################
-##############################################################################################################################
+================================================================
+				Oracle DB Monitoring
+================================================================
 
 
 7. To add configurations for oracle db monitoring, check the official documentation, but what I did is:
@@ -157,7 +162,7 @@ To fix the issue, follow the steps:
 #################################### Oracle DB Monitoring #######################################
 
 
-#For service_name, I have already exported: TNS_ADMIN=$ORACLE_HOME/network/admin and created a tnsnames.ora with the entries on it (tnsping succeeded).
+For service_name, I have already exported: TNS_ADMIN=$ORACLE_HOME/network/admin and created a tnsnames.ora with the entries on it (tnsping succeeded).
 
 ```
 # Monitor Connection Time
