@@ -129,8 +129,8 @@ To fix the issue, follow the steps:
 		sudo systemctl daemon-reload
 		sudo systemctl restart nagios
 	```
-NOW THAT YOU HAVE FINISHED WITH NAGIOS SERVER CONFIGURATION AND PLUGIN COMPILATION
-ITS TIME TO ADD THE TARGET HOSTS ( ORACLE DB SERVERS)
+ 
+Now that you have finished with nagios server configuration and plugin compilation, its time to add the target hosts ( oracle db servers).
 
 Oracle Database Monitoring
 
