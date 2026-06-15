@@ -129,13 +129,10 @@ To fix the issue, follow the steps:
 		sudo systemctl daemon-reload
 		sudo systemctl restart nagios
 	```
- NOW THAT YOU HAVE FINISHED WITH NAGIOS SERVER CONFIGURATION AND PLUGIN COMPILATION
- ITS TIME TO ADD THE TARGET HOSTS ( ORACLE DB SERVERS)
- 
-================================================================
-				Oracle DB Monitoring
-================================================================
+NOW THAT YOU HAVE FINISHED WITH NAGIOS SERVER CONFIGURATION AND PLUGIN COMPILATION
+ITS TIME TO ADD THE TARGET HOSTS ( ORACLE DB SERVERS)
 
+Oracle Database Monitoring
 
 7. To add configurations for oracle db monitoring, check the official documentation, but what I did is:
 
@@ -158,9 +155,6 @@ To fix the issue, follow the steps:
 
     Edit /usr/local/nagios/etc/hosts/<oracle-server>.cfg by changing: host_name <oracle-server> and remove the services you don't want to monitor or added new services as in my case:
     Added check_oracle_health:
-
-#################################### Oracle DB Monitoring #######################################
-
 
 For service_name, I have already exported: TNS_ADMIN=$ORACLE_HOME/network/admin and created a tnsnames.ora with the entries on it (tnsping succeeded).
 
