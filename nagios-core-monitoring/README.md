@@ -21,7 +21,7 @@ https://library.nagios.com/docs/nagios-core/getting-started/Nagios-Core-Installi
 I used the pluging from: https://omd.consol.de/docs/plugins/check_oracle_health/
 
 1. Download and Install Oracle Client: LINUX.X64_193000_client_home.zip
-	I used OS user "nagios" for all the configurations (as owner of the oracle software):
+   I used OS user "nagios" for all the configurations (as owner of the oracle software):
 
 	1.1 Add below line in your .bash_profile:
 	```
@@ -52,9 +52,9 @@ I used the pluging from: https://omd.consol.de/docs/plugins/check_oracle_health/
 
 2. Install neccessary packages as root
 
-```
-    sudo dnf install -y autoconf automake libtool make gcc glibc glibc-common perl perl-DBI perl-devel libdbi-devel perl-ExtUtils-MakeMaker
-```
+	```
+	sudo dnf install -y autoconf automake libtool make gcc glibc glibc-common perl perl-DBI perl-devel libdbi-devel perl-ExtUtils-MakeMaker
+	```
 My recommandation is to run a ``` dnf update ``` before proceeding further, just to make sure every package installed on system is up to date.
 
 3. The installation of the perl-modules DBI and DBD::Oracle is required. (https://omd.consol.de/docs/plugins/check_oracle_health/)
@@ -150,7 +150,7 @@ perl -MDBI -e 'print "DBI OK\n"'
 	make install
 	```
  
- 6.	Run: ``` sudo systemctl edit nagios ``` and paste the below lines. (Please adjust the values as per your environment):
+ 5.	Run: ``` sudo systemctl edit nagios ``` and paste the below lines. (Please adjust the values as per your environment):
 
 	```
 	[Service]
