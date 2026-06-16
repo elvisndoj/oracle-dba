@@ -12,7 +12,7 @@ tablespace_usage(){
 	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	set echo off;
 	sqlplus -s "/ as sysdba" <<EOF
-	@$sql_scripts_path/tablespace_usage.sql
+	@$sql_scripts_path/storage/tablespace_usage.sql
 EOF
 }
 tablespace_usage
