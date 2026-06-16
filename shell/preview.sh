@@ -4,7 +4,7 @@ ORATAB=/etc/oratab
 ORIG_PATH=$PATH
 
 sql_scripts_path="/home/oracle/oracle-dba/sql"
-shell_scripts_path="/home/oracle/oracle-dba/bash"
+shell_scripts_path="/home/oracle/oracle-dba/shell"
 
 # =========================================================
 # INVENTORY (FROM ORACLE INVENTORY XML)
