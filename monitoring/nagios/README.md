@@ -7,6 +7,14 @@
 
 ---
 
+This repository is intended for educational and lab purposes only.
+
+- No real credentials are used
+- All hostnames, users, and services are anonymized and do not represent production systems.
+- Do NOT use this configuration in production without proper security hardening
+- Production systems should use secure credential management (e.g. Oracle Wallet, secrets vaults, or encrypted auth mechanisms)
+  
+---
 ## Table of Contents
 
 1. Overview  
