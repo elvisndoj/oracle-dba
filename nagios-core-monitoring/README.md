@@ -106,7 +106,6 @@ perl Makefile.PL LIBS="-L$ORACLE_HOME/lib -lclntsh -ldl -lm -lpthread -lresolv"
 make
 make install
 ```
-
 Verifications steps:
 In you shell (bash) execute the following to show that the pre-requisites have been fulfilled.
 
@@ -136,11 +135,12 @@ perl -MDBI -e 'print "DBI OK\n"'
 	Root cause:
 	/usr/local/bin/autoconf (old version) was overriding system tools
 		
-	Double check the binaries (most probably If I should have run a dnf update it would be okay!!): 
-	#which -a autoconf
-	#type -a autoconf
-	#ls -l $(which autoconf)
-
+	Double check the binaries (most probably If I should have run a dnf update it would be okay!!)
+	```
+	which -a autoconf
+	type -a autoconf
+	ls -l $(which autoconf)
+	```
 	Build in home directory: /home/nagios/check_oracle_health-3.3.3.2
 
 	Install to: /usr/local/nagios/libexec
@@ -150,7 +150,7 @@ perl -MDBI -e 'print "DBI OK\n"'
 	make install
 	```
  
- 6.	Run: ``` sudo systemctl edit nagios ``` and paste the below lines. (Please adjust as per your environment):
+ 6.	Run: ``` sudo systemctl edit nagios ``` and paste the below lines. (Please adjust the values as per your environment):
 
 	```
 	[Service]
