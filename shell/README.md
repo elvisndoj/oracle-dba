@@ -1,8 +1,86 @@
-# Oracle DBA Helper Scripts
+# Oracle DBA Shell Toolkit
 
-A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as environment setup, database preview, and tablespace monitoring.
+This directory contains Bash-based Oracle Database Administration utilities used for environment discovery, real-time monitoring, and storage analysis in Linux-based Oracle environments.
 
-## Setup and Usage
+These scripts are designed for operational DBAs who need fast visibility into database status, configuration, and resource usage.
+
+---
+
+# Contents
+
+| Script 		| Purpose 													  |
+|---------------|-------------------------------------------------------------|
+| preview.sh 	| Interactive Oracle environment dashboard and session loader |
+| tbs_usage.sh	| Tablespace usage monitoring and capacity check			  |
+
+---
+
+# preview.sh — Oracle Environment Dashboard
+
+## Overview
+
+`preview.sh` is a dynamic Oracle environment inspection and control script.
+
+It acts as a lightweight DBA dashboard that:
+
+- Detects Oracle Homes from Oracle inventory
+- Reads `/etc/oratab` for configured databases
+- Checks database status (OPEN / MOUNTED / DOWN)
+- Detects ASM instances and Grid Infrastructure
+- Displays system-wide Oracle overview
+- Generates dynamic shell functions for quick database access
+
+---
+
+## Key Features
+
+### Automatic Discovery
+- Parses Oracle inventory XML
+- Detects installed Oracle Homes
+- Reads `/etc/oratab` for database instances
+
+### Database Status Monitoring
+Combines OS-level and database-level checks:
+
+- Process inspection (`pmon`)
+- SQL validation (`v$instance`)
+
+Supports status detection:
+- OPEN
+- MOUNTED
+- STARTED (NOMOUNT)
+- DOWN
+
+---
+
+### ASM / Grid Infrastructure Support
+- Detects ASM instances (`+ASM`)
+- Displays ASM diskgroup usage (`v$asm_diskgroup`)
+- Detects Grid Infrastructure services (OHASD, listener)
+
+---
+
+### Real-Time Oracle Overview
+
+Displays a consolidated table including:
+
+- Database instances
+- ASM instances
+- Listener status
+- Grid Infrastructure status
+- Oracle Homes
+
+---
+
+## Usage
+
+### Recommended (interactive session)
+
+This script must be **sourced**, not executed directly:
+
+```
+source ~/oracle-dba/shell/preview.sh
+```
 
 1. Clone the repository:
 
@@ -11,13 +89,13 @@ A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as
 	```
 2. Include the preview script in your ~/.bash_profile so it loads automatically after login:
 	```
-	. <path-to-repo>/oracle-dba/bash/preview.sh
+	source ~/oracle-dba/shell/preview.sh
 	```
 3. To configure the Oracle environment, type the ORACLE_SID of one of the available Oracle database instances. This will automatically set the required 	environment variables.
 4. For easier access to the scripts, add aliases in your ~/.bashrc file:
 	```
-	alias p=". <path-to-repo>/oracle-dba/bash/preview.sh"
-	alias tbs=". <path-to-repo>/oracle-dba/bash/tbs_usage.sh"
+	alias p="source ~/oracle-dba/shell/preview.sh"
+	alias tbs="source ~/oracle-dba/shell/tbs_usage.sh"
 	```
  5.	Reload your shell:
 	```
@@ -25,8 +103,8 @@ A collection of Bash scripts designed to simplify daily Oracle DBA tasks such as
 	```
 6. After the environment variables are set and a valid ORACLE_SID is selected (which sets ORACLE_HOME), you can easily run the scripts:
 	```
- 	p → Displays the preview screen
-	tbs → Shows tablespace usage
+ 	p	 	→ Displays the preview screen
+	tbs		→ Shows tablespace usage
 	```
 	Make sure a valid Oracle SID is selected before running the scripts.
 
