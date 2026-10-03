@@ -89,13 +89,15 @@ source ~/oracle-dba/shell/preview.sh
 	```
 2. Include the preview script in your ~/.bash_profile so it loads automatically after login:
 	```
-	source ~/oracle-dba/shell/preview.sh
+	echo "source ~/oracle-dba/shell/preview.sh" >> ~/.bash_profile
 	```
 3. To configure the Oracle environment, type the ORACLE_SID of one of the available Oracle database instances. This will automatically set the required 	environment variables.
 4. For easier access to the scripts, add aliases in your ~/.bashrc file:
 	```
+	cat >> ~/.bashrc <<EOF
 	alias p="source ~/oracle-dba/shell/preview.sh"
 	alias tbs="source ~/oracle-dba/shell/tbs_usage.sh"
+	EOF
 	```
  5.	Reload your shell:
 	```
